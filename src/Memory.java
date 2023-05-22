@@ -9,5 +9,16 @@ public class Memory {
         words = new Hashtable<>(maxCapacity);
     }
 
+    public Hashtable<String, Object> getWords() {
+        return words;
+    }
+
+    public void setWords(Hashtable<String, Object> words) {
+        this.words = words;
+    }
+
+    public int getMaxCapacity() {
+        return maxCapacity;
+    }
 
 }

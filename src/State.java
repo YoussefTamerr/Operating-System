@@ -1,6 +1,5 @@
 public enum State {
-    NEW,
-    PREEMPTED,
+    RUNNING,
     READY,
     FINISHED,
     BLOCKED,

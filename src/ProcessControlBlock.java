@@ -10,7 +10,7 @@ public class ProcessControlBlock {
 
     public ProcessControlBlock(int processID, int lowerBound, int upperBound) {
         this.processID = processID;
-        processState = State.NEW;
+        processState = State.READY;
         programCounter = 0;
         this.lowerBound = lowerBound;
         this.upperBound = upperBound;
