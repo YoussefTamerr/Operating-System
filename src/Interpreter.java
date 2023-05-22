@@ -3,6 +3,8 @@ import java.io.FileNotFoundException;
 import java.util.*;
 
 public class Interpreter {
+
+    public Interpreter(){}
     public ArrayList<String[]> readProgram(String filePath) {
         ArrayList<String[]> output = new ArrayList<>();
         try {
@@ -21,16 +23,12 @@ public class Interpreter {
         return output;
     }
 
-    public void parseInstruction(String[] instruction) {
+    public void parseInstruction(String[] instruction, int pid) {
         // Convert the array to a list
-        List<String> list = Arrays.asList(instruction);
-        Collections.reverse(list);
-        instruction = list.toArray(new String[list.size()]);
+//        List<String> list = Arrays.asList(instruction);
+//        Collections.reverse(list);
+//        instruction = list.toArray(new String[list.size()]);
 
-
-
-
-     }
 
 //    public void parseInstruction(String[] instruction) {
 //        String[] rev = new String[instruction.length];
@@ -56,31 +54,33 @@ public class Interpreter {
 //            }
 //
 //
-//        switch (instruction[i]) {
-//            case "print":
-//                printOutput(instruction);
-//                break;
-//            case "assign":
-//                assignVariable(instruction[1], instruction[2]);
-//                break;
-//            case "writeFile":
-//                writeFile(instruction[1], instruction[2]);
-//                break;
-//            case "readFile":
-//                readFile(instruction[1]);
-//                break;
-//            case "printFromTo":
-//                printFromTo(instruction[1], instruction[2]);
-//                break;
-//            case "semWait":
-//                semWait(instruction[1]);
-//                break;
-//            case "semSignal":
-//                semSignal(instruction[1]);
-//                break;
-//            case   :
-//
-//        }
-//        }
-//    }
+        switch (instruction[0]) {
+            case "print":
+                OS.printOutput(instruction[1]);
+                break;
+            case "assign":
+                if (instruction.length == 4) {
+                    ArrayList<String> temp = OS.ReadFromFile(instruction[3]);
+                    OS.assignVariable(instruction[1], temp.get(0));
+                } else {
+                    OS.assignVariable(instruction[1], instruction[2]);
+                }
+                break;
+            case "writeFile":
+                OS.writeToDisk(instruction[1], instruction[2]);
+                break;
+            case "readFile":
+                OS.ReadFromFile(instruction[1]);
+                break;
+            case "printFromTo":
+                OS.printFromTo(instruction[1], instruction[2]);
+                break;
+            case "semWait":
+                Scheduler.SchedSemWait(instruction[1], pid);
+                break;
+            case "semSignal":
+                Scheduler.SchedSemSignal(instruction[1], pid);
+                break;
+        }
+    }
 }
