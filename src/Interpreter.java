@@ -4,7 +4,11 @@ import java.util.*;
 
 public class Interpreter {
 
-    public Interpreter(){}
+    OS os;
+
+    public Interpreter(){
+        os = new OS();
+    }
     public ArrayList<String[]> readProgram(String filePath) {
         ArrayList<String[]> output = new ArrayList<>();
         try {
@@ -24,7 +28,39 @@ public class Interpreter {
     }
 
     public void parseInstruction(String[] instruction, int pid) {
-        // Convert the array to a list
+        switch (instruction[0]) {
+            case "print":
+                os.printOutput(instruction[1]);
+                break;
+            case "assign":
+                if (instruction.length == 4) {
+                    ArrayList<String> temp = OS.ReadFromFile(instruction[3]);
+                    os.assignVariable(instruction[1], temp.get(0));
+                } else {
+                    os.assignVariable(instruction[1], instruction[2]);
+                }
+                break;
+            case "writeFile":
+                os.writeToDisk(instruction[1], instruction[2]);
+                break;
+            case "readFile":
+                os.ReadFromFile(instruction[1]);
+                break;
+            case "printFromTo":
+                os.printFromTo(instruction[1], instruction[2]);
+                break;
+            case "semWait":
+                os.SchedSemWait(instruction[1], pid);
+                break;
+            case "semSignal":
+                os.SchedSemSignal(instruction[1], pid);
+                break;
+        }
+    }
+}
+
+
+// Convert the array to a list
 //        List<String> list = Arrays.asList(instruction);
 //        Collections.reverse(list);
 //        instruction = list.toArray(new String[list.size()]);
@@ -54,33 +90,3 @@ public class Interpreter {
 //            }
 //
 //
-        switch (instruction[0]) {
-            case "print":
-                OS.printOutput(instruction[1]);
-                break;
-            case "assign":
-                if (instruction.length == 4) {
-                    ArrayList<String> temp = OS.ReadFromFile(instruction[3]);
-                    OS.assignVariable(instruction[1], temp.get(0));
-                } else {
-                    OS.assignVariable(instruction[1], instruction[2]);
-                }
-                break;
-            case "writeFile":
-                OS.writeToDisk(instruction[1], instruction[2]);
-                break;
-            case "readFile":
-                OS.ReadFromFile(instruction[1]);
-                break;
-            case "printFromTo":
-                OS.printFromTo(instruction[1], instruction[2]);
-                break;
-            case "semWait":
-                Scheduler.SchedSemWait(instruction[1], pid);
-                break;
-            case "semSignal":
-                Scheduler.SchedSemSignal(instruction[1], pid);
-                break;
-        }
-    }
-}

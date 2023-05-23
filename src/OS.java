@@ -5,18 +5,40 @@ import java.util.Scanner;
 public class OS {
 
     private Memory memory;
-
     private File disk;
+    private Mutex userInput;
+    private Mutex userOutput;
+    private Mutex file;
 
     public OS() {
         memory = new Memory();
         disk = new File("src/disk.txt");
+        userOutput = new Mutex();
+        userInput = new Mutex();
+        file = new Mutex();
+    }
+
+    public void SchedSemWait(String s, int pid) {
+        if(s.equals("userInput")) {
+            userInput.semWait(pid);
+        } else  if(s.equals("userOutput")) {
+            userOutput.semWait(pid);
+        } else {
+            file.semWait(pid);
+        }
+    }
+    public void SchedSemSignal(String s, int pid) {
+        if(s.equals("userInput")) {
+            userInput.semSignal(pid);
+        } else  if(s.equals("userOutput")) {
+            userOutput.semSignal(pid);
+        } else {
+            file.semSignal(pid);
+        }
     }
 
 
-
-
-    public static void writeToDisk(String s, String txt) {
+    public void writeToDisk(String s, String txt) {
         try {
             FileWriter writer = new FileWriter(s);
             writer.write(txt);
@@ -26,7 +48,7 @@ public class OS {
         }
     }
 
-    public static ArrayList<String> ReadFromFile(String filename) {
+    public ArrayList<String> ReadFromFile(String filename) {
         ArrayList<String> res = new ArrayList<String>();
         try {
             FileReader reader = new FileReader(filename);
@@ -42,28 +64,32 @@ public class OS {
         return res;
     }
 
-    public static void printOutput(String x) {
+    public void printOutput(String x) {
+
         System.out.println(x);
     }
 
-    public static void printFromTo(String s, String s1) {
+    public void printFromTo(String s, String s1) {
     }
 
-    public static String takeInput() {
+    public String takeInput() {
         System.out.println("Please enter a value");
         Scanner sc = new Scanner(System.in);
         return sc.nextLine();
     }
 
     public Object readFromMemory(String s) {
-        return this.memory.getWords().get(s);
+        return this.memory.getWords().getVal(s);
     }
 
     public void writeToMemory(String s, Object o) {
-        this.memory.getWords().put(s, o);
+        Word w = new Word(s, o);
+        if(memory.getWords().size() <= 40) {
+            this.memory.getWords().add(w);
+        }
     }
 
-    public static void assignVariable(String x, String y) {
+    public void assignVariable(String x, String y) {
         if (y.equals("input")) {
             y = takeInput();
         }
