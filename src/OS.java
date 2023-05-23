@@ -13,7 +13,7 @@ public class OS {
 
     public OS(int timeSlice) {
         memory = new Memory();
-        disk = new File("src/disk.txt");
+        disk = new File("src/Disk.txt");
         userOutput = new Mutex();
         userInput = new Mutex();
         file = new Mutex();
@@ -23,27 +23,27 @@ public class OS {
 
     public void SchedSemWait(String s, int pid) {
         if(s.equals("userInput")) {
-            userInput.semWait(pid);
+            userInput.semWait(pid, scheduler);
         } else  if(s.equals("userOutput")) {
-            userOutput.semWait(pid);
+            userOutput.semWait(pid, scheduler);
         } else {
-            file.semWait(pid);
+            file.semWait(pid, scheduler);
         }
     }
     public void SchedSemSignal(String s, int pid) {
         if(s.equals("userInput")) {
-            userInput.semSignal(pid);
+            userInput.semSignal(pid, scheduler);
         } else  if(s.equals("userOutput")) {
-            userOutput.semSignal(pid);
+            userOutput.semSignal(pid, scheduler);
         } else {
-            file.semSignal(pid);
+            file.semSignal(pid, scheduler);
         }
     }
 
 
-    public void writeToDisk(String s, String txt) {
+    public void writeToDisk(String filename, String txt) {
         try {
-            FileWriter writer = new FileWriter(s);
+            FileWriter writer = new FileWriter(filename);
             writer.write(txt);
             writer.close();
         } catch (IOException e) {

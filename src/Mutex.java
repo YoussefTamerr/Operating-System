@@ -12,21 +12,22 @@ public class Mutex {
         blockedQueue = new LinkedList<Integer>();
     }
 
-    public void semWait(int owner) {
+    public void semWait(int owner, Scheduler sch) {
         if (available) {
             available = false;
             this.owner = owner;
         } else {
             blockedQueue.add(owner);
-            // add to scheduler blocked
+            sch.getBlockedQueue().add(owner);
         }
     }
 
-    public void semSignal(int owner) {
+    public void semSignal(int owner, Scheduler sch) {
         if (this.owner == owner) {
             if (!blockedQueue.isEmpty()) {
                 this.owner = blockedQueue.remove();
-                // remove from scheduler blocked
+                sch.getBlockedQueue().remove(owner);
+                sch.getReadyQueue().add(owner);
             } else {
                 available = true;
                 this.owner = -1;
