@@ -3,11 +3,8 @@ import java.io.FileNotFoundException;
 import java.util.*;
 
 public class Interpreter {
-
-    OS os;
-
     public Interpreter(){
-        os = new OS();
+
     }
     public ArrayList<String[]> readProgram(String filePath) {
         ArrayList<String[]> output = new ArrayList<>();
@@ -27,14 +24,14 @@ public class Interpreter {
         return output;
     }
 
-    public void parseInstruction(String[] instruction, int pid) {
+    public void parseInstruction(String[] instruction, int pid, OS os) {
         switch (instruction[0]) {
             case "print":
                 os.printOutput(instruction[1]);
                 break;
             case "assign":
                 if (instruction.length == 4) {
-                    ArrayList<String> temp = OS.ReadFromFile(instruction[3]);
+                    ArrayList<String> temp = os.ReadFromFile(instruction[3]);
                     os.assignVariable(instruction[1], temp.get(0));
                 } else {
                     os.assignVariable(instruction[1], instruction[2]);

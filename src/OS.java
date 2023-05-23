@@ -3,19 +3,22 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class OS {
-
     private Memory memory;
     private File disk;
     private Mutex userInput;
     private Mutex userOutput;
     private Mutex file;
+    private Interpreter interpreter;
+    private Scheduler scheduler;
 
-    public OS() {
+    public OS(int timeSlice) {
         memory = new Memory();
         disk = new File("src/disk.txt");
         userOutput = new Mutex();
         userInput = new Mutex();
         file = new Mutex();
+        interpreter = new Interpreter();
+        scheduler = new Scheduler(timeSlice);
     }
 
     public void SchedSemWait(String s, int pid) {
@@ -79,14 +82,12 @@ public class OS {
     }
 
     public Object readFromMemory(String s) {
-        return this.memory.getWords().getVal(s);
+        return this.memory.getWord(s).getValue();
     }
 
     public void writeToMemory(String s, Object o) {
-        Word w = new Word(s, o);
-        if(memory.getWords().size() <= 40) {
-            this.memory.getWords().add(w);
-        }
+//        Word w = new Word(s, o);
+//        this.memory.getWords().add(w);
     }
 
     public void assignVariable(String x, String y) {
@@ -98,6 +99,62 @@ public class OS {
         } catch (NumberFormatException e) {
             // zizo
         }
+    }
+
+    public Memory getMemory() {
+        return memory;
+    }
+
+    public void setMemory(Memory memory) {
+        this.memory = memory;
+    }
+
+    public File getDisk() {
+        return disk;
+    }
+
+    public void setDisk(File disk) {
+        this.disk = disk;
+    }
+
+    public Mutex getUserInput() {
+        return userInput;
+    }
+
+    public void setUserInput(Mutex userInput) {
+        this.userInput = userInput;
+    }
+
+    public Mutex getUserOutput() {
+        return userOutput;
+    }
+
+    public void setUserOutput(Mutex userOutput) {
+        this.userOutput = userOutput;
+    }
+
+    public Mutex getFile() {
+        return file;
+    }
+
+    public void setFile(Mutex file) {
+        this.file = file;
+    }
+
+    public Interpreter getInterpreter() {
+        return interpreter;
+    }
+
+    public void setInterpreter(Interpreter interpreter) {
+        this.interpreter = interpreter;
+    }
+
+    public Scheduler getScheduler() {
+        return scheduler;
+    }
+
+    public void setScheduler(Scheduler scheduler) {
+        this.scheduler = scheduler;
     }
 
     public static void main(String[] args) {

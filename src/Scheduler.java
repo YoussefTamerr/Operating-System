@@ -5,55 +5,97 @@ import java.util.Queue;
 public class Scheduler {
     private Queue<Integer> readyQueue;
     private Queue<Integer> blockedQueue;
+    private int currentTime;
+    private int timeSlice;
 
-
-    public Scheduler() {
+    public Scheduler(int timeSlice) {
         readyQueue = new LinkedList<Integer>();
         blockedQueue = new LinkedList<Integer>();
+        this.timeSlice = timeSlice;
+        currentTime = 0;
     }
 
-//    public static void SchedSemWait(String s, int pid) {
-//        if(s.equals("userInput")) {
-//            userInput.semWait(pid);
-//        } else  if(s.equals("userOutput")) {
-//            userOutput.semWait(pid);
-//        } else {
-//            file.semWait(pid);
-//        }
-//    }
-//    public static void SchedSemSignal(String s, int pid) {
-//        if(s.equals("userInput")) {
-//            userInput.semSignal(pid);
-//        } else  if(s.equals("userOutput")) {
-//            userOutput.semSignal(pid);
-//        } else {
-//            file.semSignal(pid);
-//        }
-//    }
+    public void schedule(int timeQuantum, int[] arrivalTimes, OS os) {
 
-    public void schedule() {
-        int[] arrivalTimes = {0, 1, 4};
-        int[] burstTimes = {7, 7, 9};
+        ArrayList<ArrayList<String[]>> programs = new ArrayList<>();
+        ArrayList<String[]> instructions1 = os.getInterpreter().readProgram("src/programs/Program_1.txt");
+        ArrayList<String[]> instructions2 = os.getInterpreter().readProgram("src/programs/Program_2.txt");
+        ArrayList<String[]> instructions3 = os.getInterpreter().readProgram("src/programs/Program_3.txt");
+        programs.add(instructions1);
+        programs.add(instructions2);
+        programs.add(instructions3);
 
-        int timeQuantum = 2;
-        int currentTime = 0;
+        Memory memory = os.getMemory();
 
-        Interpreter interpreter = new Interpreter();
+        while (true) {
+            for (int i = 0; i < arrivalTimes.length; i++) {
+                int t = arrivalTimes[i];
+                if (currentTime == t) {
+                    int lowerBound = 10;
+                    if (memory.getWords()[10] == null) {
+                        lowerBound = 10;
+                    } else if (memory.getWords()[25] == null) {
+                        lowerBound = 25;
+                    } else {
+                        // not enough space
+                    }
 
-        ArrayList<String[]> arr1 = interpreter.readProgram("src/programs/Program_1.txt");
-        ProcessControlBlock pcb1 = new ProcessControlBlock(0, 0, 14, State.READY, 0);
+                    ProcessControlBlock pcb = new ProcessControlBlock(i+1, lowerBound, lowerBound + 14,
+                            State.READY, 0);
 
-        ArrayList<String[]> arr2 = interpreter.readProgram("src/programs/Program_2.txt");
-        ProcessControlBlock pcb2 = new ProcessControlBlock(1, 15, 29, State.READY, 0);
+                    if (memory.getWords()[0] == null) {
+                        // skull emoji 💀 skull emoji 💀 skull emoji 💀
+                        memory.getWords()[0] = new Word("pid" + pcb.getProcessID()  , pcb.getProcessID());
+                        memory.getWords()[1] = new Word("lowerBound" + pcb.getProcessID(), pcb.getLowerBound());
+                        memory.getWords()[2] = new Word("upperBound" + pcb.getProcessID(), pcb.getUpperBound());
+                        memory.getWords()[3] = new Word("state" + pcb.getProcessID(), pcb.getProcessState());
+                        memory.getWords()[4] = new Word("pc" + pcb.getProcessID(), pcb.getProgramCounter());
+                    } else if (memory.getWords()[5] == null) {
+                        memory.getWords()[5] = new Word("pid" + pcb.getProcessID()  , pcb.getProcessID());
+                        memory.getWords()[6] = new Word("lowerBound" + pcb.getProcessID(), pcb.getLowerBound());
+                        memory.getWords()[7] = new Word("upperBound" + pcb.getProcessID(), pcb.getUpperBound());
+                        memory.getWords()[8] = new Word("state" + pcb.getProcessID(), pcb.getProcessState());
+                        memory.getWords()[9] = new Word("pc" + pcb.getProcessID(), pcb.getProgramCounter());
+                    } else {
+                        // not enough space
+                    }
 
-        ArrayList<String[]> arr3 = interpreter.readProgram("src/programs/Program_3.txt");
-        ProcessControlBlock pcb3 = new ProcessControlBlock(2, 0, 14, State.READY, 0);
+                    int b = pcb.getLowerBound();
+                    ArrayList<String[]> instructions = programs.get(pcb.getProcessID() - 1);
+                    for (String[] instruction : instructions) {
+                        memory.getWords()[b] = new Word(pcb.getProcessID() + "" + b, instruction);
+                        b++;
+                    }
 
-        while (currentTime % 2 != 0) {
+                    readyQueue.add(pcb.getProcessID());
+                }
+            }
 
-            interpreter.parseInstruction(arr1.get(pcb1.getProgramCounter()), pcb1.getProcessID());
-            
+            if (readyQueue.isEmpty()) {
+                break;
+            } else {
+                int currentProcess = readyQueue.remove();
+                if ((int) memory.getWords()[0].getValue() == currentProcess) {
+
+//                    os.getInterpreter().parseInstruction(os.getMemory().getWords()[]);
+                } else if ((int)memory.getWords()[5].getValue() == currentProcess) {
+
+                }
+            }
+
+
+
+            currentTime++;
         }
+
+
+
+
+//        while () {
+//
+//            interpreter.parseInstruction(arr1.get(pcb1.getProgramCounter()), pcb1.getProcessID());
+//
+//        }
 
 
 

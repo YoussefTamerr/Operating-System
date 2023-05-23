@@ -2,34 +2,28 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 
 public class Memory {
-    private ArrayList<Word> words;
+    private Word[] words;
 
-    private final int maxCapacity = 40;
 
     public Memory() {
-        words = new ArrayList<Word>(maxCapacity);
+        words = new Word[40];
     }
 
-    public ArrayList<Word> getWords() {
+    public Word[] getWords() {
         return words;
     }
 
-    public void setWords(ArrayList<Word> words) {
+    public void setWords(Word[] words) {
         this.words = words;
     }
 
-    public int getMaxCapacity() {
-        return maxCapacity;
-    }
-
     public Word getWord(String s) {
-        Word w = null;
-        for (int i = 0; i < words.size() ; i++) {
-            if(words.get(i).getKey().equals(s)) {
-                w = getWord(s);
+        for (Word word : words) {
+            if(word.getKey().equals(s)) {
+                return word;
             }
         }
-        return w;
+        return null;
     }
 
 }
