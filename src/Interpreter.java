@@ -6,15 +6,15 @@ public class Interpreter {
     public Interpreter(){
 
     }
-    public ArrayList<String[]> readProgram(String filePath) {
-        ArrayList<String[]> output = new ArrayList<>();
+    public ArrayList<String> readProgram(String filePath) {
+        ArrayList<String> output = new ArrayList<>();
         try {
             File myObj = new File(filePath);
             Scanner myReader = new Scanner(myObj);
             while (myReader.hasNextLine()) {
                 String data = myReader.nextLine();
-                String[] terms = data.split(" ");
-                output.add(terms);
+
+                output.add(data);
             }
             myReader.close();
         } catch (FileNotFoundException e) {
@@ -24,7 +24,26 @@ public class Interpreter {
         return output;
     }
 
-    public void parseInstruction(String[] instruction, int pid, OS os) {
+    public ArrayList<String[]> readProgramRetArr(String filePath) {
+        ArrayList<String[]> output = new ArrayList<>();
+        try {
+            File myObj = new File(filePath);
+            Scanner myReader = new Scanner(myObj);
+            while (myReader.hasNextLine()) {
+                String data = myReader.nextLine();
+                String[] instruction = data.split(" ");
+                output.add(instruction);
+            }
+            myReader.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+        return output;
+    }
+
+    public void parseInstruction(String in, int pid, OS os) {
+        String[] instruction = in.split(" ");
         switch (instruction[0]) {
             case "print":
                 os.printOutput(instruction[1]);
@@ -32,9 +51,13 @@ public class Interpreter {
             case "assign":
                 if (instruction.length == 4) {
                     ArrayList<String> temp = os.ReadFromFile(instruction[3]);
-                    os.assignVariable(instruction[1], temp.get(0));
+                    String t2="";
+                    for (int i = 0; i < temp.size() ; i++) {
+                        t2 += temp.get(i);
+                    }
+                    os.assignVariable(instruction[1], t2, os, pid);
                 } else {
-                    os.assignVariable(instruction[1], instruction[2]);
+                    os.assignVariable(instruction[1], instruction[2], os, pid);
                 }
                 break;
             case "writeFile":
@@ -44,7 +67,7 @@ public class Interpreter {
                 os.ReadFromFile(instruction[1]);
                 break;
             case "printFromTo":
-                os.printFromTo(instruction[1], instruction[2]);
+                os.printFromTo(instruction[1], instruction[2],pid);
                 break;
             case "semWait":
                 os.SchedSemWait(instruction[1], pid);
