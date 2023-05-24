@@ -50,7 +50,7 @@ public class Interpreter {
                 break;
             case "assign":
                 if (instruction.length == 4) {
-                    ArrayList<String> temp = os.ReadFromFile(instruction[3]);
+                    ArrayList<String> temp = os.ReadFromFile(instruction[3], pid);
                     String t2="";
                     for (int i = 0; i < temp.size() ; i++) {
                         t2 += temp.get(i);
@@ -64,7 +64,7 @@ public class Interpreter {
                 os.writeToDisk(instruction[1], instruction[2]);
                 break;
             case "readFile":
-                os.ReadFromFile(instruction[1]);
+                os.ReadFromFile(instruction[1], pid);
                 break;
             case "printFromTo":
                 os.printFromTo(instruction[1], instruction[2],pid);

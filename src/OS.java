@@ -78,10 +78,31 @@ public class OS {
         }
     }
 
-    public ArrayList<String> ReadFromFile(String filename) {
+    public ArrayList<String> ReadFromFile(String filename, int pid) {
+
+        ProcessControlBlock pcb = null;
+        for (int i = 0; i < processes.size() ; i++) {
+            if(pid == processes.get(i).getProcessID()) {
+                pcb = processes.get(i);
+            }
+        }
+
+        String i1 = "";
+        //for(int i=0;i<memory.getWords().length;i++){
+        for(int i=pcb.getLowerBound();i<pcb.getUpperBound();i++){
+            if(memory.getWords()[i] == null) {
+                break;
+            }
+
+            if(memory.getWords()[i].getKey().equals(""+pid+""+filename)){
+                i1= memory.getWords()[i].getValue().toString();
+            }
+        }
+
         ArrayList<String> res = new ArrayList<String>();
         try {
-            FileReader reader = new FileReader(filename);
+            System.out.println("file "+i1);
+            FileReader reader = new FileReader(i1);
             BufferedReader bufferedReader = new BufferedReader(reader);
             String line;
             while ((line = bufferedReader.readLine()) != null) {
@@ -101,15 +122,32 @@ public class OS {
 
     public void printFromTo(String s, String s1,int pid) {
         //hena el mafrood ygeeb el value mn el memory el bt correspond l lel string s w s1
+
+        ProcessControlBlock pcb = null;
+        for (int i = 0; i < processes.size() ; i++) {
+            if(pid == processes.get(i).getProcessID()) {
+                pcb = processes.get(i);
+            }
+        }
+
         int i1 = 0;
         int i2 = 0;
-        for(int i=0;i<memory.getWords().length;i++){
-            if(memory.getWords()[i].getKey().equals(pid+" "+s)){
+        //for(int i=0;i<memory.getWords().length;i++){
+        for(int i=pcb.getLowerBound();i<pcb.getUpperBound();i++){
+            if(memory.getWords()[i] == null) {
+                break;
+            }
+
+            if(memory.getWords()[i].getKey().equals(""+pid+""+s)){
                i1=(int) memory.getWords()[i].getValue();
             }
-            if(memory.getWords()[i].getKey().equals(pid+" "+s1)){
+            if(memory.getWords()[i].getKey().equals(""+pid+""+s1)){
                 i2=(int) memory.getWords()[i].getValue();
             }
+        }
+
+        if(i1 == 0 && i2 == 0) {
+            System.out.println("fy 7aga ghalat");
         }
 
         for (int i = i1; i <= i2 ; i++) {
@@ -152,12 +190,12 @@ public class OS {
             //if((int)os.memory.getWords()[0].getValue()  == pid) {
                 for (int j = pcb.getLowerBound(); j < pcb.getUpperBound(); j++) {
                     if (os.memory.getWords()[j] == null) {
-                        Word w = new Word("" + pid +" "+x, y);
+                        Word w = new Word("" + pid +""+x, y);
 
                         os.memory.getWords()[j] = w;
                         break;
                     }
-                    if (os.memory.getWords()[j].getKey().toString().equals(x)) {
+                    if (os.memory.getWords()[j].getKey().toString().equals(""+pid+""+x)) {
                         os.memory.getWords()[j].setValue(y);
                         break;
                     }
@@ -181,11 +219,11 @@ public class OS {
 
         for (int j = pcb.getLowerBound(); j < pcb.getUpperBound(); j++) {
             if (os.memory.getWords()[j] == null) {
-                Word w = new Word("" + pid +" "+x, y);
+                Word w = new Word("" + pid +""+x, y);
                 os.memory.getWords()[j] = w;
                 break;
             }
-            if (os.memory.getWords()[j].getKey().equals(x)) {
+            if (os.memory.getWords()[j].getKey().equals("" + pid +""+x)) {
                 os.memory.getWords()[j].setValue(y);
                 break;
             }
@@ -279,7 +317,7 @@ public class OS {
         OS os = new OS(2);
         ArrayList<Integer> x = new ArrayList<>();
         x.add(0);
-        x.add(2);
+        x.add(1);
         x.add(4);
         os.getScheduler().schedule(x, os);
     }

@@ -74,7 +74,6 @@ public class Scheduler {
 
                         for (int j = 10; j < 25 ; j++) {
                             if(memory.getWords()[j]==null) {
-
                                 break;
                             }
                             os.writeToDisk("src/Disk.txt", memory.getWords()[j].getKey() + " " + memory.getWords()[j].getValue().toString());
@@ -98,8 +97,19 @@ public class Scheduler {
                         inMemory = false;
                     }
 
-                    readyQueue.add(pcb.getProcessID());
-
+                    if(t < currentTime) {
+                        Queue<Integer> temp = new LinkedList<Integer>();
+                        while(!readyQueue.isEmpty()) {
+                            temp.add(readyQueue.remove());
+                        }
+                        readyQueue.add(pcb.getProcessID());
+                        while (!temp.isEmpty()) {
+                            readyQueue.add(temp.remove());
+                        }
+                    }
+                    else {
+                        readyQueue.add(pcb.getProcessID());
+                    }
                 }
             }
 
@@ -120,11 +130,22 @@ public class Scheduler {
                         if(os.getMemory().getWords()[index].getValue() == null) {
                             pcb.setProcessState(State.FINISHED);
                         } else {
-                            System.out.println("instruction : ");
+                            // check int then finish
+                            if(os.getMemory().getWords()[index].getValue() instanceof Integer){
+                                pcb.setProcessState(State.FINISHED);
+                                break;
+                            }
+                            else {System.out.println("instruction : ");
                             System.out.println((String)os.getMemory().getWords()[index].getValue());
                             os.getInterpreter().parseInstruction((String)os.getMemory().getWords()[index].getValue(), pcb.getProcessID(), os);
+                            if(blockedQueue.contains(pcb.getProcessID())) {
+                                pcb.setProcessState(State.BLOCKED);
+                                break;
+                            } else {
+                                pcb.setProcessState(State.READY);
+                            }
                             pcb.setProgramCounter(pcb.getProgramCounter() + 1);
-                            currentTime++;
+                            currentTime++;}
                         }
                     }
                     if(blockedQueue.contains(pcb.getProcessID())) {
@@ -146,11 +167,22 @@ public class Scheduler {
                         if(os.getMemory().getWords()[index].getValue() == null) {
                             pcb.setProcessState(State.FINISHED);
                         } else {
-                            System.out.println("instruction : ");
+                            // check int then finish before the only difference that the below if didnt exist
+                            if(os.getMemory().getWords()[index].getValue() instanceof Integer){
+                                pcb.setProcessState(State.FINISHED);
+                                break;
+                            }
+                            else {System.out.println("instruction : ");
                             System.out.println((String)os.getMemory().getWords()[index].getValue());
                             os.getInterpreter().parseInstruction((String)os.getMemory().getWords()[index].getValue(), pcb.getProcessID(), os);
+                            if(blockedQueue.contains(pcb.getProcessID())) {
+                                pcb.setProcessState(State.BLOCKED);
+                                break;
+                            } else {
+                                pcb.setProcessState(State.READY);
+                            }
                             pcb.setProgramCounter(pcb.getProgramCounter() + 1);
-                            currentTime++;
+                            currentTime++;}
                         }
                     }
                     if(blockedQueue.contains(pcb.getProcessID())) {
@@ -243,10 +275,30 @@ public class Scheduler {
                             kimo=true;
                         }
 
+
+
+
                         for (int j = lower; j < upper  ; j++) {
+                            String temp = ""+diskContent.get(i)[0].charAt(0);
+                            if (temp.equals(""+currentProcess)) {
+                                Word w = new Word(diskContent.get(i)[0], diskContent.get(i)[1]);
+                                diskContent.remove(i);
+                                diskContent1.remove(i);
+                            }
                             if(diskContent.get(i)[0].equals(""+currentProcess)) {
-                               Word w = new Word(diskContent.get(i)[0]+" "+diskContent.get(i)[1], diskContent.get(i)[2]);
-                               System.out.println(diskContent.get(i)[0]);
+                               //Word w = new Word(diskContent.get(i)[0]+" "+diskContent.get(i)[1], diskContent.get(i)[2]); elly kimo katabo
+                                Word w = new Word(diskContent.get(i)[0], diskContent.get(i)[1]); //we need to handle if its an instruction
+                                if(diskContent.get(i).length > 2 ) { //if bigger than 2 then its an instruction
+                                    String value = "";
+                                    for (int k = 1; k < diskContent.get(i).length; k++) {
+                                        value += diskContent.get(i)[k];
+                                        if(k != (diskContent.get(i).length - 1)) {
+                                            value += " ";
+                                        }
+                                    } //variable written as 1a as a key and 3 as value left
+                                    w.setValue(value);
+                                }
+                                System.out.println(diskContent.get(i)[0]);
                                 diskContent.remove(i);
                                 diskContent1.remove(i);
 // ABOUZ
@@ -293,6 +345,12 @@ public class Scheduler {
                                 System.out.println("instruction : ");
                                 System.out.println((String) os.getMemory().getWords()[index].getValue());
                                os.getInterpreter().parseInstruction((String)os.getMemory().getWords()[index].getValue(), pcb.getProcessID(), os);
+                                if(blockedQueue.contains(pcb.getProcessID())) {
+                                    pcb.setProcessState(State.BLOCKED);
+                                    break;
+                                } else {
+                                    pcb.setProcessState(State.READY);
+                                }
                             pcb.setProgramCounter(pcb.getProgramCounter() + 1);
                             currentTime++;}
                         }

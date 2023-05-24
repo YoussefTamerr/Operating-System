@@ -26,8 +26,10 @@ public class Mutex {
         if (this.owner == owner) {
             if (!blockedQueue.isEmpty()) {
                 this.owner = blockedQueue.remove();
-                sch.getBlockedQueue().remove(owner);
-                sch.getReadyQueue().add(owner);
+                int w = sch.getBlockedQueue().remove();
+                sch.getReadyQueue().add(w);
+                available = true;
+
             } else {
                 available = true;
                 this.owner = -1;
