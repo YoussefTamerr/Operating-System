@@ -49,7 +49,7 @@ public class Scheduler {
                     ProcessControlBlock pcb = new ProcessControlBlock(toto, lowerBound, lowerBound + 14,
                             State.READY, 0);
                     toto++;
-                    System.out.print(pcb.getProcessID());
+
                     os.getProcesses().add(pcb);
                     if (memory.getWords()[0] == null) {
                         inMemory = true;
@@ -99,7 +99,7 @@ public class Scheduler {
                     }
 
                     readyQueue.add(pcb.getProcessID());
-                    System.out.println(pcb.getProcessID());
+
                 }
             }
 
@@ -186,7 +186,7 @@ public class Scheduler {
                     State state = null;
                     Boolean kimo= false;
                     for (int i = 0; i < diskContent.size() ; i++) {
-                        System.out.print("ff");
+
                         if (diskContent.get(i)[0].equals("pid"+currentProcess)) {
                             pid = Integer.parseInt(diskContent.get(i)[1]);
                             diskContent.remove(i);
@@ -244,12 +244,12 @@ public class Scheduler {
                         }
 
                         for (int j = lower; j < upper  ; j++) {
-                            if(diskContent.get(i)[0].equals(""+pid)) {
-                               Word w = new Word(diskContent.get(i)[0], diskContent.get(i)[1]);
-
+                            if(diskContent.get(i)[0].equals(""+currentProcess)) {
+                               Word w = new Word(diskContent.get(i)[0]+" "+diskContent.get(i)[1], diskContent.get(i)[2]);
+                               System.out.println(diskContent.get(i)[0]);
                                 diskContent.remove(i);
                                 diskContent1.remove(i);
-
+// ABOUZ
                                 memory.getWords()[j] = w;
                             }
                         }

@@ -153,6 +153,7 @@ public class OS {
                 for (int j = pcb.getLowerBound(); j < pcb.getUpperBound(); j++) {
                     if (os.memory.getWords()[j] == null) {
                         Word w = new Word("" + pid +" "+x, y);
+
                         os.memory.getWords()[j] = w;
                         break;
                     }
@@ -180,7 +181,7 @@ public class OS {
 
         for (int j = pcb.getLowerBound(); j < pcb.getUpperBound(); j++) {
             if (os.memory.getWords()[j] == null) {
-                Word w = new Word(x, y);
+                Word w = new Word("" + pid +" "+x, y);
                 os.memory.getWords()[j] = w;
                 break;
             }
