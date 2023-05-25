@@ -73,7 +73,6 @@ public class OS {
 
         String i1 = "";
         String i2 = "";
-        //for(int i=0;i<memory.getWords().length;i++){
         for(int i=pcb.getLowerBound();i<pcb.getUpperBound();i++){
             if(memory.getWords()[i] == null) {
                 break;
@@ -96,22 +95,6 @@ public class OS {
         }
     }
 
-    public void emptyDisk() {
-        try {
-            // Open the file in write mode
-            File file = new File("src/Disk.txt");
-            FileWriter writer = new FileWriter(file);
-
-            // Close the file to empty its contents
-            writer.close();
-
-            System.out.println("File emptied successfully.");
-        } catch(IOException e) {
-            System.out.println("An error occurred.");
-            e.printStackTrace();
-        }
-    }
-
     public ArrayList<String> ReadFromFile(String filename, int pid) {
 
         ProcessControlBlock pcb = null;
@@ -122,7 +105,6 @@ public class OS {
         }
 
         String i1 = "";
-        //for(int i=0;i<memory.getWords().length;i++){
         for(int i=pcb.getLowerBound();i<pcb.getUpperBound();i++){
             if(memory.getWords()[i] == null) {
                 break;
@@ -135,7 +117,6 @@ public class OS {
 
         ArrayList<String> res = new ArrayList<String>();
         try {
-            System.out.println("file "+i1);
             FileReader reader = new FileReader(i1);
             BufferedReader bufferedReader = new BufferedReader(reader);
             String line;
@@ -158,8 +139,6 @@ public class OS {
         }
 
         String i1 = "";
-
-        //for(int i=0;i<memory.getWords().length;i++){
         for(int i=pcb.getLowerBound();i<pcb.getUpperBound();i++){
             if(memory.getWords()[i] == null) {
                 break;
@@ -174,8 +153,6 @@ public class OS {
     }
 
     public void printFromTo(String s, String s1,int pid) {
-        //hena el mafrood ygeeb el value mn el memory el bt correspond l lel string s w s1
-
         ProcessControlBlock pcb = null;
         for (int i = 0; i < processes.size() ; i++) {
             if(pid == processes.get(i).getProcessID()) {
@@ -218,10 +195,6 @@ public class OS {
         return this.memory.getWord(s).getValue();
     }
 
-    public void writeToMemory(String s, Object o) {
-//        Word w = new Word(s, o);
-//        this.memory.getWords().add(w);
-    }
 
     public void assignVariable(String x, String y, OS os, int pid) {
 
@@ -239,8 +212,6 @@ public class OS {
         try {
             i = Integer.parseInt(y);
         } catch (NumberFormatException e) {
-
-            //if((int)os.memory.getWords()[0].getValue()  == pid) {
                 for (int j = pcb.getLowerBound(); j < pcb.getUpperBound(); j++) {
                     if (os.memory.getWords()[j] == null) {
                         Word w = new Word("" + pid +""+x, y);
@@ -254,19 +225,6 @@ public class OS {
                     }
 
                 }
-//            } else if((int)os.memory.getWords()[5].getValue()  == pid) {
-//                for (int j = 25; j < 40 ; j++) {
-//                    if (os.memory.getWords()[j].getKey().toString().equals(x)) {
-//                        os.memory.getWords()[j].setValue(y);
-//                        break;
-//                    }
-//                    if(os.memory.getWords()[j].getKey() == null) {
-//                        Word w = new Word(x, y);
-//                        os.memory.getWords()[j] = w;
-//                        break;
-//                    }
-//                }
-//            }
             return;
         }
 
@@ -282,32 +240,6 @@ public class OS {
             }
 
         }
-
-//        if((int)os.memory.getWords()[0].getValue()  == pid) {
-//            for (int j = 10; j < 25 ; j++) {
-//                if (os.memory.getWords()[j].getKey().toString().equals(x)) {
-//                    os.memory.getWords()[j].setValue(i);
-//                    break;
-//                }
-//                if(os.memory.getWords()[j].getKey() == null) {
-//                    Word w = new Word(x, i);
-//                    os.memory.getWords()[j] = w;
-//                    break;
-//                }
-//            }
-//        } else if((int)os.memory.getWords()[5].getValue()  == pid) {
-//            for (int j = 25; j < 40 ; j++) {
-//                if (os.memory.getWords()[j].getKey().toString().equals(x)) {
-//                    os.memory.getWords()[j].setValue(i);
-//                    break;
-//                }
-//                if(os.memory.getWords()[j].getKey() == null) {
-//                    Word w = new Word(x, i);
-//                    os.memory.getWords()[j] = w;
-//                    break;
-//                }
-//            }
-//        }
     }
 
     public Memory getMemory() {

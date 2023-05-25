@@ -37,6 +37,11 @@ public class Scheduler {
         programs.add(instructions2);
         programs.add(instructions3);
 
+        ArrayList<Integer> readyHelper = new ArrayList<Integer>();
+//        for (int i = 0; i < programs.size() ; i++) {
+//            readyHelper.add(i+1);
+//        }
+
         Memory memory = os.getMemory();
         boolean inMemory = false;
         while (true) {
@@ -55,6 +60,7 @@ public class Scheduler {
 
                     ProcessControlBlock pcb = new ProcessControlBlock(toto, lowerBound, lowerBound + 14,
                             State.READY, 0);
+                    readyHelper.add(toto);
                     toto++;
 
                     os.getProcesses().add(pcb);
@@ -104,29 +110,36 @@ public class Scheduler {
                         inMemory = false;
                     }
 
-                    if(t <= currentTime) {  ////was just changed now
-                        Queue<Integer> temp = new LinkedList<Integer>();
-                        while(!readyQueue.isEmpty()) {
-                            temp.add(readyQueue.remove());
-                        }
-                        readyQueue.add(pcb.getProcessID());
-                        while (!temp.isEmpty()) {
-                            readyQueue.add(temp.remove());
-                        }
-                    }
-                    else {
-                        readyQueue.add(pcb.getProcessID());
-                    }
+//                    if(t <= currentTime) {  ////was just changed now
+//                        Queue<Integer> temp = new LinkedList<Integer>();
+//                        while(!readyQueue.isEmpty()) {
+//                            temp.add(readyQueue.remove());
+//                        }
+//                        readyQueue.add(pcb.getProcessID());
+//                        while (!temp.isEmpty()) {
+//                            readyQueue.add(temp.remove());
+//                        }
+//                    }
+//                    else {
+//                        readyQueue.add(pcb.getProcessID());
+//                    }
+                    readyQueue.add(pcb.getProcessID());
+
+
+                }
+            }
+
+            for (int j = 0; j < readyHelper.size() ; j++) {
+                if(!readyQueue.contains(readyHelper.get(j)) && !blockedQueue.contains(readyHelper.get(j))) {
+                    readyQueue.add(readyHelper.get(j));
                 }
             }
 
             if (readyQueue.isEmpty()) {
                 break;
             } else {
-                System.out.println("ready queue : ");
-                System.out.println(readyQueue);
-                System.out.println("blocked queue : ");
-                System.out.println(blockedQueue);
+                System.out.println("ready queue : " + readyQueue);
+                System.out.println("blocked queue : " + blockedQueue);
                 int currentProcess = readyQueue.remove();
                 if ((int) memory.getWords()[0].getValue() == currentProcess) {
                     ProcessControlBlock pcb = new ProcessControlBlock((int)memory.getWords()[0].getValue(), (int)memory.getWords()[1].getValue(),(int)memory.getWords()[2].getValue()
@@ -136,20 +149,21 @@ public class Scheduler {
                         int index = (pcb.getLowerBound()) + (pcb.getProgramCounter());
                         if(os.getMemory().getWords()[index] == null) {
                             pcb.setProcessState(State.FINISHED);
+                            readyHelper.remove(new Integer(currentProcess));
                         } else {
                             String in1 = (String) os.getMemory().getWords()[index].getValue(); //2 cycles
                             String[] instruction9 = in1.split(" ");
-                            // check int then finish
-//                            if(os.getMemory().getWords()[index].getValue() instanceof Integer){
                             if(os.getMemory().getWords()[index].getValue().toString().matches("\\d+")){
                                 pcb.setProcessState(State.FINISHED);
+                                readyHelper.remove(new Integer(currentProcess));
                                 break;
                             }
                             else if (!keyWords.contains(instruction9[0])) {
                                 pcb.setProcessState(State.FINISHED);
+                                readyHelper.remove(new Integer(currentProcess));
                                 break;
                             }
-                            else {System.out.println("instruction : ");
+                            else {System.out.print("instruction : ");
                                 String in = (String) os.getMemory().getWords()[index].getValue(); //2 cycles
                                 String[] instruction = in.split(" ");
                                 if(instruction[0].equals("assign") && instruction.length == 4) {
@@ -167,12 +181,10 @@ public class Scheduler {
                                 }
                             if(blockedQueue.contains(pcb.getProcessID())) {
                                 pcb.setProcessState(State.BLOCKED);
-                                // was just changed
                                 pcb.setProgramCounter(pcb.getProgramCounter() + 1);
                                 os.getProcesses().add(pcb);
                                 memory.getWords()[3].setValue(pcb.getProcessState());
                                 memory.getWords()[4].setValue(pcb.getProgramCounter());
-                                //
                                 break;
                             } else {
                                 pcb.setProcessState(State.READY);
@@ -184,7 +196,7 @@ public class Scheduler {
                     if(blockedQueue.contains(pcb.getProcessID())) {
                         pcb.setProcessState(State.BLOCKED);
                     } else if(pcb.getProcessState().equals(State.READY)) {
-                        readyQueue.add(pcb.getProcessID());
+                        //readyQueue.add(pcb.getProcessID());
                     }
                     currentTime--;
                     memory.getWords()[3].setValue(pcb.getProcessState());
@@ -199,29 +211,21 @@ public class Scheduler {
                         int index = (pcb.getLowerBound()) + (pcb.getProgramCounter());
                         if(os.getMemory().getWords()[index] == null) {
                             pcb.setProcessState(State.FINISHED);
+                            readyHelper.remove(new Integer(currentProcess));
                         } else {
                             String in1 = (String) os.getMemory().getWords()[index].getValue(); //2 cycles
                             String[] instruction9 = in1.split(" ");
-
-                            // check int then finish before the only difference that the below if didnt exist
-//                            if(os.getMemory().getWords()[index].getValue() instanceof Integer){
                             if(os.getMemory().getWords()[index].getValue().toString().matches("\\d+")){
                                 pcb.setProcessState(State.FINISHED);
+                                readyHelper.remove(new Integer(currentProcess));
                                 break;
                             }
                             else if (!keyWords.contains(instruction9[0])) {
                                 pcb.setProcessState(State.FINISHED);
+                                readyHelper.remove(new Integer(currentProcess));
                                 break;
                             }
-                            else {System.out.println("instruction : ");
-//                            System.out.println((String)os.getMemory().getWords()[index].getValue());
-//                                for (int j = 0; j < memory.getWords().length ; j++) {
-//                                    if( os.getMemory().getWords()[j] == null) {
-//                                        System.out.println("null");
-//                                        continue;
-//                                    }
-//                                    System.out.println(os.getMemory().getWords()[j].getKey()+" : "+os.getMemory().getWords()[j].getValue());
-//                                }
+                            else {System.out.print("instruction : ");
                                 String in = (String) os.getMemory().getWords()[index].getValue(); //2 cycles
                                 String[] instruction = in.split(" ");
                                 if(instruction[0].equals("assign") && instruction.length == 4) {
@@ -239,12 +243,10 @@ public class Scheduler {
                                 }
                             if(blockedQueue.contains(pcb.getProcessID())) {
                                 pcb.setProcessState(State.BLOCKED);
-                                // was just changed
                                 pcb.setProgramCounter(pcb.getProgramCounter() + 1);
                                 os.getProcesses().add(pcb);
                                 memory.getWords()[8].setValue(pcb.getProcessState());
                                 memory.getWords()[9].setValue(pcb.getProgramCounter());
-                                //
                                 break;
                             } else {
                                 pcb.setProcessState(State.READY);
@@ -256,7 +258,7 @@ public class Scheduler {
                     if(blockedQueue.contains(pcb.getProcessID())) {
                         pcb.setProcessState(State.BLOCKED);
                     } else if(pcb.getProcessState().equals(State.READY)) {
-                        readyQueue.add(pcb.getProcessID());
+                       // readyQueue.add(pcb.getProcessID());
                     }
                     os.getProcesses().add(pcb);
                     currentTime--;
@@ -368,7 +370,6 @@ public class Scheduler {
                                     value += " ";
                                 }
                             }
-//                            System.out.println("val : "+value);
                             Word w = new Word(diskContent.get(i)[0], value);
                             diskContent.remove(i);
                             diskContent1.remove(i);
@@ -377,49 +378,15 @@ public class Scheduler {
                             memory.getWords()[memoryIndex] = w;
                             value = "";
                         }
-
-//                        for (int j = lower; j < upper  ; j++) {
-//                            //String temp = ""+diskContent.get(i)[0].charAt(0);
-////                            if (temp.equals(""+currentProcess)) {
-////                                Word w = new Word(diskContent.get(i)[0], diskContent.get(i)[1]);
-////                                diskContent.remove(i);
-////                                diskContent1.remove(i); //el ghalta enk mesh bt7otha fy memory
-////                            }
-//                            if(diskContent.get(i)[0].equals(""+currentProcess)) {
-//                               //Word w = new Word(diskContent.get(i)[0]+" "+diskContent.get(i)[1], diskContent.get(i)[2]); elly kimo katabo
-//                                Word w = new Word(diskContent.get(i)[0], diskContent.get(i)[1]); //we need to handle if its an instruction
-//                                if(diskContent.get(i).length > 2 ) { //if bigger than 2 then its an instruction
-////                                    String value = "";
-//                                    for (int k = 1; k < diskContent.get(i).length; k++) {
-//                                        value += diskContent.get(i)[k];
-//                                        if(k != (diskContent.get(i).length - 1)) {
-//                                            value += " ";
-//                                        }
-//                                    } //variable written as 1a as a key and 3 as value left
-//                                    w.setValue(value);
-//                                }
-//                                System.out.println(diskContent.get(i)[0]);
-//                                diskContent.remove(i);
-//                                diskContent1.remove(i);
-//// ABOUZ
-//                                memory.getWords()[j] = w;
-//                            }
-//                      }
-//                      if(kimo){
-//                          kimo = false;
-//                          i--;
-//                      }
                     }
                     File f = new File("src/Disk.txt");
                     f.delete();
                     System.gc();
-                   // os.emptyDisk();
                     for (int i = 0; i < diskContent.size() ; i++) {
                         os.writeToDisk("src/Disk.txt", diskContent1.get(i));
                     }
                     ProcessControlBlock pcb = new ProcessControlBlock(pid, lower, upper, state, pc);
                     os.getProcesses().remove(pcb);
-
 
                     memory.getWords()[0] = new Word("pid" + pcb.getProcessID()  , pcb.getProcessID());
                     memory.getWords()[1] = new Word("lowerBound" + pcb.getProcessID(), pcb.getLowerBound());
@@ -427,36 +394,26 @@ public class Scheduler {
                     memory.getWords()[3] = new Word("state" + pcb.getProcessID(), pcb.getProcessState());
                     memory.getWords()[4] = new Word("pc" + pcb.getProcessID(), pcb.getProgramCounter());
 
-
-
-                    //hna nkamel law mal2tsh el process fy memory kda gebnaha men disk 3ayzeen n7otha fy memory w 3ayzeen ngeeb el instructions men disk Lsa matgaboosh
-
                     for (int i = 0; i < timeSlice ; i++) {
                         int index = (pcb.getLowerBound()) + (pcb.getProgramCounter());
                         if(os.getMemory().getWords()[index] == null) {
                             pcb.setProcessState(State.FINISHED);
+                            readyHelper.remove(new Integer(currentProcess));
                         } else {
                             String in1 = (String) os.getMemory().getWords()[index].getValue(); //2 cycles
                             String[] instruction9 = in1.split(" ");
-//                            if(os.getMemory().getWords()[index].getValue() instanceof Integer){
                             if(os.getMemory().getWords()[index].getValue().toString().matches("\\d+")){
                                 pcb.setProcessState(State.FINISHED);
+                                readyHelper.remove(new Integer(currentProcess));
                                 break;
                             }
                             else if (!keyWords.contains(instruction9[0])) {
                                 pcb.setProcessState(State.FINISHED);
+                                readyHelper.remove(new Integer(currentProcess));
                                 break;
                             }
                            else{
-                                System.out.println("instruction : ");
-
-//                                for (int j = 0; j < memory.getWords().length ; j++) {
-//                                    if( os.getMemory().getWords()[j] == null) {
-//                                        System.out.println("null");
-//                                        continue;
-//                                    }
-//                                    System.out.println(os.getMemory().getWords()[j].getKey()+" : "+os.getMemory().getWords()[j].getValue());
-//                                }
+                                System.out.print("instruction : ");
                                 String in = (String) os.getMemory().getWords()[index].getValue(); //2 cycles
                                 String[] instruction = in.split(" ");
                                 if(instruction[0].equals("assign") && instruction.length == 4) {
@@ -475,12 +432,10 @@ public class Scheduler {
 
                                 if(blockedQueue.contains(pcb.getProcessID())) {
                                     pcb.setProcessState(State.BLOCKED);
-                                    // was just changed
                                     pcb.setProgramCounter(pcb.getProgramCounter() + 1);
                                     os.getProcesses().add(pcb);
                                     memory.getWords()[3].setValue(pcb.getProcessState());
                                     memory.getWords()[4].setValue(pcb.getProgramCounter());
-                                    //
                                     break;
                                 } else {
                                     pcb.setProcessState(State.READY);
@@ -492,7 +447,7 @@ public class Scheduler {
                     if(blockedQueue.contains(pcb.getProcessID())) {
                         pcb.setProcessState(State.BLOCKED);
                     } else if(pcb.getProcessState().equals(State.READY)) {
-                        readyQueue.add(pcb.getProcessID());
+                       // readyQueue.add(pcb.getProcessID());
                     }
                     os.getProcesses().add(pcb);
                     currentTime--;
@@ -538,3 +493,11 @@ public class Scheduler {
         this.timeSlice = timeSlice;
     }
 }
+
+//                                for (int j = 0; j < memory.getWords().length ; j++) {
+//                                    if( os.getMemory().getWords()[j] == null) {
+//                                        System.out.println("null");
+//                                        continue;
+//                                    }
+//                                    System.out.println(os.getMemory().getWords()[j].getKey()+" : "+os.getMemory().getWords()[j].getValue());
+//                                }
