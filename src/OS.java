@@ -62,6 +62,40 @@ public class OS {
         }
     }
 
+    public void writeToFile(String filename, String txt, int pid) {
+
+        ProcessControlBlock pcb = null;
+        for (int i = 0; i < processes.size() ; i++) {
+            if(pid == processes.get(i).getProcessID()) {
+                pcb = processes.get(i);
+            }
+        }
+
+        String i1 = "";
+        String i2 = "";
+        //for(int i=0;i<memory.getWords().length;i++){
+        for(int i=pcb.getLowerBound();i<pcb.getUpperBound();i++){
+            if(memory.getWords()[i] == null) {
+                break;
+            }
+
+            if(memory.getWords()[i].getKey().equals(""+pid+""+filename)){
+                i1= memory.getWords()[i].getValue().toString();
+            }
+            if(memory.getWords()[i].getKey().equals(""+pid+""+txt)){
+                i2= memory.getWords()[i].getValue().toString();
+            }
+        }
+
+        try {
+            FileWriter writer = new FileWriter(i1, true);
+            writer.write(i2+"\n");
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void emptyDisk() {
         try {
             // Open the file in write mode
@@ -115,9 +149,28 @@ public class OS {
         return res;
     }
 
-    public void printOutput(String x) {
+    public void printOutput(String x, int pid) {
+        ProcessControlBlock pcb = null;
+        for (int i = 0; i < processes.size() ; i++) {
+            if(pid == processes.get(i).getProcessID()) {
+                pcb = processes.get(i);
+            }
+        }
 
-        System.out.println(x);
+        String i1 = "";
+
+        //for(int i=0;i<memory.getWords().length;i++){
+        for(int i=pcb.getLowerBound();i<pcb.getUpperBound();i++){
+            if(memory.getWords()[i] == null) {
+                break;
+            }
+
+            if(memory.getWords()[i].getKey().equals(""+pid+""+x)){
+                i1= memory.getWords()[i].getValue().toString();
+            }
+
+        }
+        System.out.println(i1);
     }
 
     public void printFromTo(String s, String s1,int pid) {
@@ -182,7 +235,7 @@ public class OS {
         if (y.equals("input")) {
             y = takeInput();
         }
-        int i = 0;
+        Integer i;
         try {
             i = Integer.parseInt(y);
         } catch (NumberFormatException e) {

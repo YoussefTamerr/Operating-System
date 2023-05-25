@@ -46,7 +46,7 @@ public class Interpreter {
         String[] instruction = in.split(" ");
         switch (instruction[0]) {
             case "print":
-                os.printOutput(instruction[1]);
+                os.printOutput(instruction[1], pid);
                 break;
             case "assign":
                 if (instruction.length == 4) {
@@ -61,7 +61,7 @@ public class Interpreter {
                 }
                 break;
             case "writeFile":
-                os.writeToDisk(instruction[1], instruction[2]);
+                os.writeToFile(instruction[1], instruction[2], pid);
                 break;
             case "readFile":
                 os.ReadFromFile(instruction[1], pid);

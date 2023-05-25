@@ -28,7 +28,7 @@ public class Mutex {
                 this.owner = blockedQueue.remove();
                 int w = sch.getBlockedQueue().remove();
                 sch.getReadyQueue().add(w);
-                available = true;
+                //available = true;
 
             } else {
                 available = true;
