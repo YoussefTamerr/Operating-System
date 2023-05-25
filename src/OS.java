@@ -139,10 +139,10 @@ public class OS {
             }
 
             if(memory.getWords()[i].getKey().equals(""+pid+""+s)){
-               i1=(int) memory.getWords()[i].getValue();
+               i1= Integer.parseInt(memory.getWords()[i].getValue().toString());
             }
             if(memory.getWords()[i].getKey().equals(""+pid+""+s1)){
-                i2=(int) memory.getWords()[i].getValue();
+                i2= Integer.parseInt(memory.getWords()[i].getValue().toString());
             }
         }
 

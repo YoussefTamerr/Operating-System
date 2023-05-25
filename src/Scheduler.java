@@ -76,7 +76,7 @@ public class Scheduler {
                             if(memory.getWords()[j]==null) {
                                 break;
                             }
-                            os.writeToDisk("src/Disk.txt", memory.getWords()[j].getKey() + " " + memory.getWords()[j].getValue().toString());
+                            os.writeToDisk("src/Disk.txt", memory.getWords()[j].getKey() + " " + j + " "+ memory.getWords()[j].getValue().toString());
                         }
 
                         memory.getWords()[0] = new Word("pid" + pcb.getProcessID()  , pcb.getProcessID());
@@ -127,7 +127,7 @@ public class Scheduler {
                     os.getProcesses().remove(pcb);
                     for (int i = 0; i < timeSlice ; i++) {
                         int index = (pcb.getLowerBound()) + (pcb.getProgramCounter());
-                        if(os.getMemory().getWords()[index].getValue() == null) {
+                        if(os.getMemory().getWords()[index] == null) {
                             pcb.setProcessState(State.FINISHED);
                         } else {
                             // check int then finish
@@ -164,7 +164,7 @@ public class Scheduler {
                     os.getProcesses().remove(pcb);
                     for (int i = 0; i < timeSlice ; i++) {
                         int index = (pcb.getLowerBound()) + (pcb.getProgramCounter());
-                        if(os.getMemory().getWords()[index].getValue() == null) {
+                        if(os.getMemory().getWords()[index] == null) {
                             pcb.setProcessState(State.FINISHED);
                         } else {
                             // check int then finish before the only difference that the below if didnt exist
@@ -174,6 +174,13 @@ public class Scheduler {
                             }
                             else {System.out.println("instruction : ");
                             System.out.println((String)os.getMemory().getWords()[index].getValue());
+//                                for (int j = 0; j < memory.getWords().length ; j++) {
+//                                    if( os.getMemory().getWords()[j] == null) {
+//                                        System.out.println("null");
+//                                        continue;
+//                                    }
+//                                    System.out.println(os.getMemory().getWords()[j].getKey()+" : "+os.getMemory().getWords()[j].getValue());
+//                                }
                             os.getInterpreter().parseInstruction((String)os.getMemory().getWords()[index].getValue(), pcb.getProcessID(), os);
                             if(blockedQueue.contains(pcb.getProcessID())) {
                                 pcb.setProcessState(State.BLOCKED);
@@ -206,7 +213,7 @@ public class Scheduler {
                         if(memory.getWords()[j]==null){
                             break;
                         }
-                        os.writeToDisk("src/Disk.txt",  memory.getWords()[j].getKey()+" "+memory.getWords()[j].getValue().toString());
+                        os.writeToDisk("src/Disk.txt",  memory.getWords()[j].getKey()+" " + j + " "+memory.getWords()[j].getValue().toString());
                     }
 
                     ArrayList<String[]> diskContent = os.getInterpreter().readProgramRetArr("src/Disk.txt");
@@ -217,98 +224,130 @@ public class Scheduler {
                     int pc = 0;
                     State state = null;
                     Boolean kimo= false;
+                    int memoryIndex;
+                    String value = "";
                     for (int i = 0; i < diskContent.size() ; i++) {
-
                         if (diskContent.get(i)[0].equals("pid"+currentProcess)) {
                             pid = Integer.parseInt(diskContent.get(i)[1]);
                             diskContent.remove(i);
                             diskContent1.remove(i);
                             kimo=true;
-
+                            i--;
                         }
-                        if (diskContent.get(i)[0].equals("lowerBound"+currentProcess)) {
+                        else if (diskContent.get(i)[0].equals("lowerBound"+currentProcess)) {
                             lower = Integer.parseInt(diskContent.get(i)[1]);
                             diskContent.remove(i);
                             diskContent1.remove(i);
                             kimo=true;
-
+                            i--;
                         }
-                        if (diskContent.get(i)[0].equals("upperBound"+currentProcess)) {
+                        else if (diskContent.get(i)[0].equals("upperBound"+currentProcess)) {
                             upper = Integer.parseInt(diskContent.get(i)[1]);
                             diskContent.remove(i);
                             diskContent1.remove(i);
                             kimo=true;
-
+                            i--;
                         }
-                        if (diskContent.get(i)[0].equals("state"+currentProcess)) {
+                        else if (diskContent.get(i)[0].equals("state"+currentProcess)) {
                            switch (diskContent.get(i)[1]) {
                                case "RUNNING" :
                                    state = State.RUNNING;
                                    diskContent.remove(i);
                                    diskContent1.remove(i);
                                    kimo=true;
+                                   i--;
                                    break;
                                case "READY":
                                    state = State.READY;
                                    diskContent.remove(i);
                                    diskContent1.remove(i);
                                    kimo=true;
+                                   i--;
                                    break;
                                case "FINISHED":
                                    state = State.FINISHED;
                                    diskContent.remove(i);
                                    diskContent1.remove(i);
                                    kimo=true;
+                                   i--;
                                    break;
                                case "BLOCKED":
                                    state = State.BLOCKED;
                                    diskContent.remove(i);
                                    diskContent1.remove(i);
                                    kimo=true;
+                                   i--;
                                    break;
                            }
                         }
-                        if (diskContent.get(i)[0].equals("pc"+currentProcess)) {
+                        else if (diskContent.get(i)[0].equals("pc"+currentProcess)) {
                             pc = Integer.parseInt(diskContent.get(i)[1]);
                             diskContent.remove(i);
                             diskContent1.remove(i);
                             kimo=true;
+                            i--;
                         }
-
-
-
-
-                        for (int j = lower; j < upper  ; j++) {
+                        else if(diskContent.get(i)[0].length() == 2) {
                             String temp = ""+diskContent.get(i)[0].charAt(0);
                             if (temp.equals(""+currentProcess)) {
-                                Word w = new Word(diskContent.get(i)[0], diskContent.get(i)[1]);
+                                memoryIndex = Integer.parseInt(diskContent.get(i)[1]);
+                                Word w = new Word(diskContent.get(i)[0], diskContent.get(i)[2]);
                                 diskContent.remove(i);
                                 diskContent1.remove(i);
-                            }
-                            if(diskContent.get(i)[0].equals(""+currentProcess)) {
-                               //Word w = new Word(diskContent.get(i)[0]+" "+diskContent.get(i)[1], diskContent.get(i)[2]); elly kimo katabo
-                                Word w = new Word(diskContent.get(i)[0], diskContent.get(i)[1]); //we need to handle if its an instruction
-                                if(diskContent.get(i).length > 2 ) { //if bigger than 2 then its an instruction
-                                    String value = "";
-                                    for (int k = 1; k < diskContent.get(i).length; k++) {
-                                        value += diskContent.get(i)[k];
-                                        if(k != (diskContent.get(i).length - 1)) {
-                                            value += " ";
-                                        }
-                                    } //variable written as 1a as a key and 3 as value left
-                                    w.setValue(value);
-                                }
-                                System.out.println(diskContent.get(i)[0]);
-                                diskContent.remove(i);
-                                diskContent1.remove(i);
-// ABOUZ
-                                memory.getWords()[j] = w;
+                                kimo = true;
+                                i--;
+                                memory.getWords()[memoryIndex] = w;
                             }
                         }
-                      if(kimo){
-                          kimo = false;
-                          i--;
-                      }
+                        else if(diskContent.get(i)[0].equals(""+currentProcess)) {
+                            memoryIndex = Integer.parseInt(diskContent.get(i)[1]);
+                            for (int k = 2; k < diskContent.get(i).length; k++) {
+                                value += diskContent.get(i)[k];
+                                if(k != (diskContent.get(i).length - 1)) {
+                                    value += " ";
+                                }
+                            }
+//                            System.out.println("val : "+value);
+                            Word w = new Word(diskContent.get(i)[0], value);
+                            diskContent.remove(i);
+                            diskContent1.remove(i);
+                            kimo = true;
+                            i--;
+                            memory.getWords()[memoryIndex] = w;
+                            value = "";
+                        }
+
+//                        for (int j = lower; j < upper  ; j++) {
+//                            //String temp = ""+diskContent.get(i)[0].charAt(0);
+////                            if (temp.equals(""+currentProcess)) {
+////                                Word w = new Word(diskContent.get(i)[0], diskContent.get(i)[1]);
+////                                diskContent.remove(i);
+////                                diskContent1.remove(i); //el ghalta enk mesh bt7otha fy memory
+////                            }
+//                            if(diskContent.get(i)[0].equals(""+currentProcess)) {
+//                               //Word w = new Word(diskContent.get(i)[0]+" "+diskContent.get(i)[1], diskContent.get(i)[2]); elly kimo katabo
+//                                Word w = new Word(diskContent.get(i)[0], diskContent.get(i)[1]); //we need to handle if its an instruction
+//                                if(diskContent.get(i).length > 2 ) { //if bigger than 2 then its an instruction
+////                                    String value = "";
+//                                    for (int k = 1; k < diskContent.get(i).length; k++) {
+//                                        value += diskContent.get(i)[k];
+//                                        if(k != (diskContent.get(i).length - 1)) {
+//                                            value += " ";
+//                                        }
+//                                    } //variable written as 1a as a key and 3 as value left
+//                                    w.setValue(value);
+//                                }
+//                                System.out.println(diskContent.get(i)[0]);
+//                                diskContent.remove(i);
+//                                diskContent1.remove(i);
+//// ABOUZ
+//                                memory.getWords()[j] = w;
+//                            }
+//                      }
+//                      if(kimo){
+//                          kimo = false;
+//                          i--;
+//                      }
                     }
                     File f = new File("src/Disk.txt");
                     f.delete();
@@ -333,7 +372,7 @@ public class Scheduler {
 
                     for (int i = 0; i < timeSlice ; i++) {
                         int index = (pcb.getLowerBound()) + (pcb.getProgramCounter());
-                        if(os.getMemory().getWords()[index].getValue() == null) {
+                        if(os.getMemory().getWords()[index] == null) {
                             pcb.setProcessState(State.FINISHED);
                         } else {
 
@@ -344,6 +383,13 @@ public class Scheduler {
                            else{
                                 System.out.println("instruction : ");
                                 System.out.println((String) os.getMemory().getWords()[index].getValue());
+//                                for (int j = 0; j < memory.getWords().length ; j++) {
+//                                    if( os.getMemory().getWords()[j] == null) {
+//                                        System.out.println("null");
+//                                        continue;
+//                                    }
+//                                    System.out.println(os.getMemory().getWords()[j].getKey()+" : "+os.getMemory().getWords()[j].getValue());
+//                                }
                                os.getInterpreter().parseInstruction((String)os.getMemory().getWords()[index].getValue(), pcb.getProcessID(), os);
                                 if(blockedQueue.contains(pcb.getProcessID())) {
                                     pcb.setProcessState(State.BLOCKED);
@@ -362,8 +408,8 @@ public class Scheduler {
                     }
                     os.getProcesses().add(pcb);
                     currentTime--;
-                    memory.getWords()[8].setValue(pcb.getProcessState());
-                    memory.getWords()[9].setValue(pcb.getProgramCounter());
+                    memory.getWords()[3].setValue(pcb.getProcessState());
+                    memory.getWords()[4].setValue(pcb.getProgramCounter());
 
                 }
             }
