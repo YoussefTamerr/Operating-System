@@ -20,7 +20,7 @@ public class Scheduler {
 
 
 
-    public void schedule(ArrayList<Integer> arrivalTimes, OS os) {
+    public void schedule(ArrayList<Integer> arrivalTimes, OS os, ArrayList<ArrayList<String>> programs) {
         ArrayList<String> keyWords = new ArrayList<String>();
         keyWords.add("assign");
         keyWords.add("writeFile");
@@ -29,13 +29,13 @@ public class Scheduler {
         keyWords.add("print");
         keyWords.add("semSignal");
         keyWords.add("semWait");
-        ArrayList<ArrayList<String>> programs = new ArrayList<>();
-        ArrayList<String> instructions1 = os.getInterpreter().readProgram("src/programs/Program_1.txt");
-        ArrayList<String> instructions2 = os.getInterpreter().readProgram("src/programs/Program_2.txt");
-        ArrayList<String> instructions3 = os.getInterpreter().readProgram("src/programs/Program_3.txt");
-        programs.add(instructions1);
-        programs.add(instructions2);
-        programs.add(instructions3);
+//        ArrayList<ArrayList<String>> programs = new ArrayList<>();
+//        ArrayList<String> instructions1 = os.getInterpreter().readProgram("src/programs/Program_1.txt");
+//        ArrayList<String> instructions2 = os.getInterpreter().readProgram("src/programs/Program_2.txt");
+//        ArrayList<String> instructions3 = os.getInterpreter().readProgram("src/programs/Program_3.txt");
+//        programs.add(instructions1);
+//        programs.add(instructions2);
+//        programs.add(instructions3);
 
         ArrayList<Integer> readyHelper = new ArrayList<Integer>();
 //        for (int i = 0; i < programs.size() ; i++) {
@@ -71,6 +71,7 @@ public class Scheduler {
                         memory.getWords()[2] = new Word("upperBound" + pcb.getProcessID(), pcb.getUpperBound());
                         memory.getWords()[3] = new Word("state" + pcb.getProcessID(), pcb.getProcessState());
                         memory.getWords()[4] = new Word("pc" + pcb.getProcessID(), pcb.getProgramCounter());
+                        System.out.println(""+pcb.getProcessID() + " is written to memory");
                     } else if (memory.getWords()[5] == null) {
                         inMemory = true;
                         memory.getWords()[5] = new Word("pid" + pcb.getProcessID()  , pcb.getProcessID());
@@ -78,13 +79,14 @@ public class Scheduler {
                         memory.getWords()[7] = new Word("upperBound" + pcb.getProcessID(), pcb.getUpperBound());
                         memory.getWords()[8] = new Word("state" + pcb.getProcessID(), pcb.getProcessState());
                         memory.getWords()[9] = new Word("pc" + pcb.getProcessID(), pcb.getProgramCounter());
+                        System.out.println(""+pcb.getProcessID() + " is written to memory");
                     } else {
                         os.writeToDisk("src/Disk.txt", memory.getWords()[0].getKey()+" "+memory.getWords()[0].getValue());
                         os.writeToDisk("src/Disk.txt", memory.getWords()[1].getKey()+" "+memory.getWords()[1].getValue());
                         os.writeToDisk("src/Disk.txt", memory.getWords()[2].getKey()+" "+memory.getWords()[2].getValue());
                         os.writeToDisk("src/Disk.txt", memory.getWords()[3].getKey()+" "+memory.getWords()[3].getValue());
                         os.writeToDisk("src/Disk.txt", memory.getWords()[4].getKey()+" "+memory.getWords()[4].getValue());
-
+                        System.out.println(""+memory.getWords()[0].getValue() + " is written to disk");
                         for (int j = 10; j < 25 ; j++) {
                             if(memory.getWords()[j]==null) {
                                 break;
@@ -97,6 +99,7 @@ public class Scheduler {
                         memory.getWords()[2] = new Word("upperBound" + pcb.getProcessID(), pcb.getUpperBound());
                         memory.getWords()[3] = new Word("state" + pcb.getProcessID(), pcb.getProcessState());
                         memory.getWords()[4] = new Word("pc" + pcb.getProcessID(), pcb.getProgramCounter());
+                        System.out.println(""+pcb.getProcessID() + " is written to memory");
                         inMemory = true;
                     }
 
@@ -141,6 +144,7 @@ public class Scheduler {
                 System.out.println("ready queue : " + readyQueue);
                 System.out.println("blocked queue : " + blockedQueue);
                 int currentProcess = readyQueue.remove();
+                System.out.println("currently executing process " + currentProcess);
                 if ((int) memory.getWords()[0].getValue() == currentProcess) {
                     ProcessControlBlock pcb = new ProcessControlBlock((int)memory.getWords()[0].getValue(), (int)memory.getWords()[1].getValue(),(int)memory.getWords()[2].getValue()
                             ,(State) memory.getWords()[3].getValue(),(int)memory.getWords()[4].getValue());
@@ -198,6 +202,14 @@ public class Scheduler {
                     } else if(pcb.getProcessState().equals(State.READY)) {
                         //readyQueue.add(pcb.getProcessID());
                     }
+                    int index1 = (pcb.getLowerBound()) + (pcb.getProgramCounter());
+                    String in11 = (String) os.getMemory().getWords()[index1].getValue(); //2 cycles
+                    String[] instruction99 = in11.split(" ");
+                    if (!keyWords.contains(instruction99[0]) || os.getMemory().getWords()[index1].getValue().toString().matches("\\d+") || os.getMemory().getWords()[index1] == null) {
+                        pcb.setProcessState(State.FINISHED);
+                        readyHelper.remove(new Integer(currentProcess));
+                    }
+
                     currentTime--;
                     memory.getWords()[3].setValue(pcb.getProcessState());
                     memory.getWords()[4].setValue(pcb.getProgramCounter());
@@ -260,6 +272,15 @@ public class Scheduler {
                     } else if(pcb.getProcessState().equals(State.READY)) {
                        // readyQueue.add(pcb.getProcessID());
                     }
+
+                    int index1 = (pcb.getLowerBound()) + (pcb.getProgramCounter());
+                    String in11 = (String) os.getMemory().getWords()[index1].getValue(); //2 cycles
+                    String[] instruction99 = in11.split(" ");
+                    if (!keyWords.contains(instruction99[0]) || os.getMemory().getWords()[index1].getValue().toString().matches("\\d+") || os.getMemory().getWords()[index1] == null) {
+                        pcb.setProcessState(State.FINISHED);
+                        readyHelper.remove(new Integer(currentProcess));
+                    }
+
                     os.getProcesses().add(pcb);
                     currentTime--;
                     memory.getWords()[8].setValue(pcb.getProcessState());
@@ -271,6 +292,8 @@ public class Scheduler {
                     os.writeToDisk("src/Disk.txt", memory.getWords()[2].getKey()+" "+memory.getWords()[2].getValue());
                     os.writeToDisk("src/Disk.txt", memory.getWords()[3].getKey()+" "+memory.getWords()[3].getValue());
                     os.writeToDisk("src/Disk.txt", memory.getWords()[4].getKey()+" "+memory.getWords()[4].getValue());
+                    System.out.println(""+memory.getWords()[0].getValue() + " is written to disk");
+
 
                     for (int j = 10; j < 25 ; j++) {
                         if(memory.getWords()[j]==null){
@@ -393,6 +416,7 @@ public class Scheduler {
                     memory.getWords()[2] = new Word("upperBound" + pcb.getProcessID(), pcb.getUpperBound());
                     memory.getWords()[3] = new Word("state" + pcb.getProcessID(), pcb.getProcessState());
                     memory.getWords()[4] = new Word("pc" + pcb.getProcessID(), pcb.getProgramCounter());
+                    System.out.println(""+pcb.getProcessID() + " is written to memory");
 
                     for (int i = 0; i < timeSlice ; i++) {
                         int index = (pcb.getLowerBound()) + (pcb.getProgramCounter());
@@ -449,6 +473,15 @@ public class Scheduler {
                     } else if(pcb.getProcessState().equals(State.READY)) {
                        // readyQueue.add(pcb.getProcessID());
                     }
+
+                    int index1 = (pcb.getLowerBound()) + (pcb.getProgramCounter());
+                    String in11 = (String) os.getMemory().getWords()[index1].getValue(); //2 cycles
+                    String[] instruction99 = in11.split(" ");
+                    if (!keyWords.contains(instruction99[0]) || os.getMemory().getWords()[index1].getValue().toString().matches("\\d+") || os.getMemory().getWords()[index1] == null) {
+                        pcb.setProcessState(State.FINISHED);
+                        readyHelper.remove(new Integer(currentProcess));
+                    }
+
                     os.getProcesses().add(pcb);
                     currentTime--;
                     memory.getWords()[3].setValue(pcb.getProcessState());
@@ -457,6 +490,23 @@ public class Scheduler {
                 }
             }
             currentTime++;
+            System.out.println("Memory :");
+            for (int j = 0; j < memory.getWords().length ; j++) {
+                if( os.getMemory().getWords()[j] == null) {
+                    System.out.println("null");
+                    continue;
+                }
+                System.out.println(os.getMemory().getWords()[j].getKey()+" : "+os.getMemory().getWords()[j].getValue());
+            }
+            System.out.println();
+            System.out.println("Disk : ");
+            ArrayList<String> diskContent = os.getInterpreter().readProgram("src/Disk.txt");
+            for (int i = 0; i < diskContent.size() ; i++) {
+                System.out.println(diskContent.get(i));
+            }
+            System.out.println();
+            System.out.println();
+            System.out.println();
         }
     }
 

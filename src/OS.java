@@ -304,7 +304,17 @@ public class OS {
         x.add(0);
         x.add(1);
         x.add(4);
-        os.getScheduler().schedule(x, os);
+
+        ArrayList<String> instructions1 = os.getInterpreter().readProgram("src/programs/Program_1.txt");
+        ArrayList<String> instructions2 = os.getInterpreter().readProgram("src/programs/Program_2.txt");
+        ArrayList<String> instructions3 = os.getInterpreter().readProgram("src/programs/Program_3.txt");
+
+        ArrayList<ArrayList<String>> programsOrder = new ArrayList<ArrayList<String>>();
+        programsOrder.add(instructions1);
+        programsOrder.add(instructions2);
+        programsOrder.add(instructions3);
+
+        os.getScheduler().schedule(x, os, programsOrder);
     }
 
 }

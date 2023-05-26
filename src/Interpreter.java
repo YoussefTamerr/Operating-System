@@ -49,7 +49,7 @@ public class Interpreter {
                 os.printOutput(instruction[1], pid);
                 break;
             case "assign":
-                if (instruction.length == 4) {
+                if (instruction.length == 4 && instruction[2].equals("readFile")) {
                     ArrayList<String> temp = os.ReadFromFile(instruction[3], pid);
                     String t2="";
                     for (int i = 0; i < temp.size() ; i++) {
@@ -57,7 +57,18 @@ public class Interpreter {
                     }
                     os.assignVariable(instruction[1], t2, os, pid);
                 } else {
-                    os.assignVariable(instruction[1], instruction[2], os, pid);
+                    if (instruction.length > 3) {
+                        String v="";
+                        for (int i = 2; i < instruction.length ; i++) {
+                            v+= instruction[i];
+                            if(i != (instruction.length-1)) {
+                                v+=" ";
+                            }
+                        }
+                        os.assignVariable(instruction[1], v, os, pid);
+                    } else {
+                        os.assignVariable(instruction[1], instruction[2], os, pid);
+                    }
                 }
                 break;
             case "writeFile":
